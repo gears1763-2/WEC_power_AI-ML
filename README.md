@@ -22,8 +22,10 @@ following sub-directories:
         images/     to hold the image assets used in building the main report
     Maple/          to hold supporting Maple worksheets (along with .pdf renders)
     ProteusDS/      to hold an example Proteus DS simulation (used in generating the data table)
-    Python/         to hold supporting Python scripts
+    Python/         to hold supporting Python scripts and C extensions
         data/       to hold the data table
+        pyx/        to hold support Cython files, etc.
+
 --------
 
 
