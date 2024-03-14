@@ -45,6 +45,7 @@ import numpy as np
 import random
 
 import wave_utils as wu
+import wave_energy_converter as wec
 
 
 if __name__ == "__main__":
@@ -158,6 +159,21 @@ if __name__ == "__main__":
             zorder=3,
             label="discrete (binned)"
         )
+        
+        
+        
+        #   wave_energy_converter 1: test float mass function
+        float_inner_diameter_m = 6
+        float_outer_diameter_m = 30
+        float_resting_draft_m = 2.5
+        
+        float_mass_kg = wec.getFloatMass(
+            float_inner_diameter_m,
+            float_outer_diameter_m,
+            float_resting_draft_m
+        )
+        
+        assert(abs(float_mass_kg - 1738871.53376195) <= 1e-4)
     
     
     

@@ -398,5 +398,6 @@ cpdef double[:] getComponentAmplitudeArray(
     
     return component_amplitude_array_m
 
+
 if __name__ == "__main__":
     pass

@@ -52,6 +52,10 @@ ext_modules = [
         "wave_utils",
         ["pyx/wave_utils.pyx"]
     ),
+    Extension(
+        "wave_energy_converter",
+        ["pyx/wave_energy_converter.pyx"]
+    ),
 ]
 
 setup(

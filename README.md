@@ -18,7 +18,7 @@ In the directory for this project, you should find this README, a LICENSE file, 
 following sub-directories:
 
     animations/     to hold some WEC animations
-    LaTeX/          to hold the main report along with the sources used in building it
+    LaTeX/          to hold the main report (see `LaTeX/main.pdf`) along with the sources used in building it
         images/     to hold the image assets used in building the main report
     Maple/          to hold supporting Maple worksheets (along with .pdf renders)
     ProteusDS/      to hold an example Proteus DS simulation (used in generating the data table)
