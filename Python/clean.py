@@ -74,3 +74,36 @@ if __name__ == "__main__":
     for filename in not_pyx_list:
         os.remove("pyx" + os.path.sep + filename)
         print("removed pyx" + os.path.sep + filename)
+    
+    
+    #   clean up LaTeX/
+    LaTeX_clean_list = [
+        filename for filename in 
+        os.listdir(".." + os.path.sep + "LaTeX") if
+        filename != "bib" and
+        filename != "images" and
+        filename != "tex" and
+        ".tex" not in filename and
+        ".bib" not in filename and
+        ".pdf" not in filename
+    ]
+    
+    for filename in LaTeX_clean_list:
+        os.remove(".." + os.path.sep + "LaTeX" + os.path.sep + filename)
+        print("removed .." + os.path.sep + "LaTeX" + os.path.sep + filename)
+    
+    LaTeX_clean_list = [
+        filename for filename in 
+        os.listdir(".." + os.path.sep + "LaTeX" + os.path.sep + "tex") if
+        ".tex" not in filename
+    ]
+    
+    for filename in LaTeX_clean_list:
+        os.remove(
+            ".." + os.path.sep + "LaTeX" + os.path.sep +
+            "tex" + os.path.sep + filename
+        )
+        print(
+            "removed .." + os.path.sep + "LaTeX" + os.path.sep +
+            "tex" + os.path.sep + filename
+        )
