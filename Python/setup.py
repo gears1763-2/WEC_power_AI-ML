@@ -45,6 +45,7 @@ from Cython.Compiler import Options
 import numpy as np
 from setuptools import setup, Extension
 
+
 Options.fast_fail = True
 
 ext_modules = [

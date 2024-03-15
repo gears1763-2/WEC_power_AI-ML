@@ -54,6 +54,7 @@ if __name__ == "__main__":
     column_header_list = list(WEC_dataframe)
     
     
+    
     #   print summary info
     print("WEC_dataframe.shape:", WEC_dataframe.shape)
     print("\ncolumn_header_list:\n")
@@ -62,6 +63,7 @@ if __name__ == "__main__":
     print(WEC_dataframe.info())
     print("\nWEC_dataframe.describe():\n")
     print(WEC_dataframe.describe())
+    
     
     
     #   drop NaN rows
@@ -77,6 +79,7 @@ if __name__ == "__main__":
     )
     
     
+    
     #   drop ERROR rows
     WEC_dataframe = WEC_dataframe[
         WEC_dataframe["Simulation Terminal Condition"] != "ERROR"
@@ -88,6 +91,7 @@ if __name__ == "__main__":
         round(100 * (size_after / size_before), 2),
         "% of the data was retained"
     )
+    
     
     
     #   drop rows for which significant wave height is > depth / 2 (deemed to be excessive)
@@ -104,18 +108,22 @@ if __name__ == "__main__":
     )
     
     
+    
     #   define feature and target column lists
     feature_column_list = column_header_list[1 : 7]
     target_column_list = [column_header_list[7]]
+    
     
     
     #   sort by target value (ascending, for the sake of plotting)
     WEC_dataframe = WEC_dataframe.sort_values(by=target_column_list)
     
     
+    
     #   extract feature and target arrays
     feature_array = WEC_dataframe[feature_column_list].astype(float).values
     target_array = WEC_dataframe[target_column_list].astype(float).values
+    
     
     
     #   make a histrogram of modelled hydrodynamic efficiency values
@@ -144,6 +152,7 @@ if __name__ == "__main__":
     plt.close()
     
     print("DONE (saved to ../LaTeX/images/mining/)")
+    
     
     
     #   make some scatter plots (initial data mining)
@@ -183,6 +192,7 @@ if __name__ == "__main__":
             plt.close()
     
     print("DONE (saved to ../LaTeX/images/mining/)")
+    
     
     
     #   try some dimensionless terms
@@ -289,6 +299,7 @@ if __name__ == "__main__":
             "data/dimensionless_feature_array.npy",
             dimensionless_feature_array
         )
+    
     
     
     #   make some more scatter plots (dimensionless terms)

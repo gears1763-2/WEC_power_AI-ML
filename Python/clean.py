@@ -35,8 +35,8 @@
 
 
 """
-    A simple script for cleaning out the Python directory for shipping (essentially a 
-    "make clean").
+    A simple script for cleaning up the project for shipping. This is essentially a
+    "make clean".
 """
 
 

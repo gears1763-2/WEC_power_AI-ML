@@ -35,7 +35,8 @@
 
 
 """
-    A collection of utility functions for modelling an irregular sea surface.
+    A collection of utility functions for modelling an irregular sea surface. Assumes 
+    a Pierson-Moskowitz sea.
 """
 
 
@@ -43,6 +44,8 @@ import cython
 import math
 import numpy as np
 
+
+#### ============================================================================== ####
 
 cpdef double getPiersonMoskowitzS(
     double frequency_Hz,
@@ -79,6 +82,11 @@ cpdef double getPiersonMoskowitzS(
     
     return S_m2Hz
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double[:] getRandomPhaseArray(int n_components):
     """
@@ -103,6 +111,11 @@ cpdef double[:] getRandomPhaseArray(int n_components):
     
     return random_phase_array
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double dispersionRelationObjective(
     double wave_number_m,
@@ -144,6 +157,11 @@ cpdef double dispersionRelationObjective(
     
     return left_hand_side - right_hand_side
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double getWaveNumber(
     double frequency_Hz,
@@ -195,6 +213,11 @@ cpdef double getWaveNumber(
     
     return wave_number_m
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double[:] getWaveNumberArray(
     double[:] frequency_array_Hz,
@@ -241,6 +264,11 @@ cpdef double[:] getWaveNumberArray(
     
     return wave_number_array_m
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double[:] getFrequencyBoundsArray(double[:] frequency_array_Hz):
     """
@@ -281,6 +309,11 @@ cpdef double[:] getFrequencyBoundsArray(double[:] frequency_array_Hz):
     
     return frequency_bounds_array_Hz
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double getVariancePreservingPiersonMoskowitzS(
     double lower_frequency_Hz,
@@ -339,6 +372,11 @@ cpdef double getVariancePreservingPiersonMoskowitzS(
     
     return S_sum_m2Hz / span
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double[:] getComponentAmplitudeArray(
     double[:] frequency_array_Hz,
@@ -398,6 +436,11 @@ cpdef double[:] getComponentAmplitudeArray(
     
     return component_amplitude_array_m
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double getCharacteristicWaveNumber(
     double[:] frequency_array_Hz,
@@ -472,6 +515,9 @@ cpdef double getCharacteristicWaveNumber(
         i += 1
     
     return numerator_sum / denominator_sum
+
+#### ============================================================================== ####
+
 
 
 if __name__ == "__main__":

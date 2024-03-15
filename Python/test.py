@@ -35,7 +35,7 @@
 
 
 """
-    A script for testing the various C extensions.
+    A script for testing the various C extensions generated from pyx/.
 """
 
 
@@ -52,6 +52,8 @@ if __name__ == "__main__":
     print("\n**** TESTING C EXTENSIONS ****")
     
     try:
+        #### ======== test wave_utils ============================================= ####
+        
         #   wave_utils 1: generate a test S(f) plot
         significant_wave_height_m = random.uniform(1, 3)
         wave_peak_period_s = random.uniform(8, 12)
@@ -176,6 +178,11 @@ if __name__ == "__main__":
         assert(weighted_average_wave_number_m > 0)
         assert(weighted_average_wave_number_m <= 1)
         
+        #### ======== end test wave_utils ========================================= ####
+        
+        
+        
+        #### ======== test wave_energy_converter ================================== ####
         
         #   wave_energy_converter 1: test float mass function
         float_inner_diameter_m = 6
@@ -263,6 +270,9 @@ if __name__ == "__main__":
         print("\tPTO Stiffness =", power_takeoff_stiffness_Nm, "N/m")
         print("\tPTO damping =", power_takeoff_damping_Nsm, "N.s/m")
         print("\tExpected WEC power =", round(expected_WEC_power_kW, 2), "kW")
+        
+        #### ======== end test wave_energy_converter ============================== ####
+    
     
     
     except:

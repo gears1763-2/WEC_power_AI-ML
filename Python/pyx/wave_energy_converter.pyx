@@ -45,6 +45,8 @@ import math
 import numpy as np
 
 
+#### ============================================================================== ####
+
 cpdef double getFloatMass(
     double float_inner_diameter_m,
     double float_outer_diameter_m,
@@ -84,6 +86,11 @@ cpdef double getFloatMass(
     
     return float_mass_kg
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double getBuoyancyStiffness(
     double float_inner_diameter_m,
@@ -125,6 +132,11 @@ cpdef double getBuoyancyStiffness(
     
     return buoyancy_stiffness_Nm
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double[:, :] getAlphaBetaArray(
     double[:] component_amplitude_array_m,
@@ -197,6 +209,11 @@ cpdef double[:, :] getAlphaBetaArray(
     
     return alpha_beta_array_m
 
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
 
 cpdef double[:, :] getABArray(
     double [:, :] alpha_beta_array_m,
@@ -309,7 +326,11 @@ cpdef double[:, :] getABArray(
     
     return A_B_array_m
 
+#### ============================================================================== ####
 
+
+
+#### ============================================================================== ####
 
 cpdef double getExpectedWECPower(
     double[:, :] A_B_array_m,
@@ -363,6 +384,9 @@ cpdef double getExpectedWECPower(
         i += 1
     
     return (power_takeoff_damping_Nsm / 2000) * expected_WEC_power_kW
+
+#### ============================================================================== ####
+
 
 
 if __name__ == "__main__":
