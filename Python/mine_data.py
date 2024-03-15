@@ -71,7 +71,7 @@ if __name__ == "__main__":
     size_after = WEC_dataframe.shape[0]
     
     print(
-        "\nNaN rows dropped,",
+        "\nrows with NaNs dropped,",
         round(100 * (size_after / size_before), 2),
         "% of the data was retained"
     )
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     size_after = WEC_dataframe.shape[0]
     
     print(
-        "\nERROR rows dropped,",
+        "\nrows with \"ERROR\" dropped,",
         round(100 * (size_after / size_before), 2),
         "% of the data was retained"
     )
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     
     #   define feature and target column lists
     feature_column_list = column_header_list[1 : 7]
-    target_column_list = column_header_list[7]
+    target_column_list = [column_header_list[7]]
     
     
     #   sort by target value (ascending, for the sake of plotting)
@@ -114,8 +114,36 @@ if __name__ == "__main__":
     
     
     #   extract feature and target arrays
-    feature_array = WEC_dataframe[feature_column_list].values
-    target_array = WEC_dataframe[target_column_list].values
+    feature_array = WEC_dataframe[feature_column_list].astype(float).values
+    target_array = WEC_dataframe[target_column_list].astype(float).values
+    
+    
+    #   make a histrogram of modelled hydrodynamic efficiency values
+    print("\nHydrodynamic Efficiency (deep water) [ ]:\n")
+    print(WEC_dataframe["Hydrodynamic Efficiency (deep water) [ ]"].astype(float).describe())
+    
+    print("\nMaking a histogram of WEC hydrodynamic efficiency ... ", end="", flush=True)
+        
+    plt.figure(figsize=(8, 6))
+    plt.grid(color="C7", alpha=0.5, zorder=1)
+    plt.hist(
+        WEC_dataframe["Hydrodynamic Efficiency (deep water) [ ]"].astype(float).values,
+        bins="scott",
+        alpha=0.8,
+        zorder=2
+    )
+    plt.xlabel("Hydrodynamic Efficiency (deep water) [ ]")
+    plt.xlim(0, 1)
+    plt.ylabel("Count [ ]")
+    plt.savefig(
+        "../LaTeX/images/mining/WEC_hydrodynamic_efficiency_histogram.png",
+        format="png",
+        dpi=128,
+        bbox_inches="tight"
+    )
+    plt.close()
+    
+    print("DONE (saved to ../LaTeX/images/mining/)")
     
     
     #   make some scatter plots (initial data mining)
@@ -135,7 +163,7 @@ if __name__ == "__main__":
                 zorder=3
             )
             plt.colorbar(
-                label=target_column_list
+                label=target_column_list[0]
             )
             plt.xlabel(feature_column_list[i])
             if feature_column_list[i] == "Power Takeoff Damping [N.s/m]":
@@ -287,7 +315,7 @@ if __name__ == "__main__":
                 zorder=3
             )
             plt.colorbar(
-                label=target_column_list
+                label=target_column_list[0]
             )
             plt.xlabel(dimensionless_feature_column_list[i])
             if i < 3:

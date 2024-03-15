@@ -23,8 +23,8 @@ following sub-directories:
     Maple/          to hold supporting Maple worksheets (along with .pdf renders)
     ProteusDS/      to hold an example Proteus DS simulation (used in generating the data table)
     Python/         to hold supporting Python scripts and C extensions
-        data/       to hold the data table
-        pyx/        to hold supporting Cython files, etc.
+        data/       to hold the data table, `numpy` binaries, etc.
+        pyx/        to hold supporting `cython` files, etc.
 
 --------
 

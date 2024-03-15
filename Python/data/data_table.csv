@@ -1,4 +1,4 @@
-Simulation ID [ ],Water Depth [m],Significant Wave Height [m],Wave Peak Period [s],Float Diameter [m],Power Takeoff Stiffness [N/m],Power Takeoff Damping [N.s/m],Expected Power Output [kW],Wave Power Transport [kW/m],Hydrodynamic Efficiency [ ],Simulation Terminal Condition
+Simulation ID [ ],Water Depth [m],Significant Wave Height [m],Wave Peak Period [s],Float Diameter [m],Power Takeoff Stiffness [N/m],Power Takeoff Damping [N.s/m],Expected Power Output [kW],Wave Power Transport (deep water) [kW/m],Hydrodynamic Efficiency (deep water) [ ],Simulation Terminal Condition
 0,20,0.25,5,10,0,10000,0.120917000291689,0.153314084905841,0.0788688138900947,COMPLETE
 1,20,0.25,5,10,0,100000,0.819521256621355,0.153314084905841,0.534537486966492,COMPLETE
 10,20,0.25,5,10,500,10000,0.548099046381728,0.153314084905841,0.357500778038983,COMPLETE
