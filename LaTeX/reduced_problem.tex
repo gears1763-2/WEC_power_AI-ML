@@ -291,7 +291,7 @@ If one applies the same trig identity as was used previously, it follows that (\
 \noindent From this, it follows that the nonhomogeneous equation can be expressed as
 
 \begin{equation}
-	m\ddot{z} + b\dot{z} + \left(k + k_D\right)z \cong \sum_{n=1}^{N} \left[\alpha_n\cos\left(\frac{2\pi nt}{T}\right) + \beta_n\sin\left(\frac{2\pi nt}{T}\right)\right]
+	m\ddot{z} + b\dot{z} + \left(k + k_D\right)z \cong k_D\sum_{n=1}^{N} \left[\alpha_n\cos\left(\frac{2\pi nt}{T}\right) + \beta_n\sin\left(\frac{2\pi nt}{T}\right)\right]
 	\label{eqn:ODE_nonhomogeneous}
 \end{equation}
 
@@ -321,7 +321,7 @@ If one applies the same trig identity as was used previously, it follows that (\
 	m\sum_{n=1}^{N} \left[-A_n\left(\frac{2\pi n}{T}\right)^2\cos\left(\frac{2\pi nt}{T}\right) - B_n\left(\frac{2\pi n}{T}\right)^2\sin\left(\frac{2\pi nt}{T}\right)\right] +\\
 	b\sum_{n=1}^{N} \left[-A_n\left(\frac{2\pi n}{T}\right)\sin\left(\frac{2\pi nt}{T}\right) + B_n\left(\frac{2\pi n}{T}\right)\cos\left(\frac{2\pi nt}{T}\right)\right] +\\
 	(k + k_D)\sum_{n=1}^{N} \left[A_n\cos\left(\frac{2\pi nt}{T}\right) + B_n\sin\left(\frac{2\pi nt}{T}\right)\right] \cong\\
-	\sum_{n=1}^{N} \left[\alpha_n\cos\left(\frac{2\pi nt}{T}\right) + \beta_n\sin\left(\frac{2\pi nt}{T}\right)\right]
+	k_D\sum_{n=1}^{N} \left[\alpha_n\cos\left(\frac{2\pi nt}{T}\right) + \beta_n\sin\left(\frac{2\pi nt}{T}\right)\right]
 	\label{eqn:ODE_nonhomogeneous_subbed}
 \end{multline}
 
@@ -339,9 +339,9 @@ If one applies the same trig identity as was used previously, it follows that (\
 		B_n
 	\end{bmatrix} \cong
 	\begin{bmatrix}
-		\alpha_n \\
+		k_D\alpha_n \\
 		{} \\
-		\beta_n
+		k_D\beta_n
 	\end{bmatrix}
 	\label{eqn:ODE_nonhomogeneous_linear_system}
 \end{equation}
@@ -357,11 +357,11 @@ If one applies the same trig identity as was used previously, it follows that (\
 
 \begin{subequations}
 	\begin{equation}
-		A_n \cong \frac{\alpha_n\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right) - \beta_n b\left(\frac{2\pi n}{T}\right)}{\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right)^2 + b^2\left(\frac{2\pi n}{T}\right)^2}
+		A_n \cong \frac{k_D\alpha_n\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right) - k_D\beta_n b\left(\frac{2\pi n}{T}\right)}{\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right)^2 + b^2\left(\frac{2\pi n}{T}\right)^2}
 	\end{equation}
 	{} \\
 	\begin{equation}
-		B_n \cong \frac{\beta_n\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right) + \alpha_n b\left(\frac{2\pi n}{T}\right)}{\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right)^2 + b^2\left(\frac{2\pi n}{T}\right)^2}
+		B_n \cong \frac{k_D\beta_n\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right) + k_D\alpha_n b\left(\frac{2\pi n}{T}\right)}{\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right)^2 + b^2\left(\frac{2\pi n}{T}\right)^2}
 	\end{equation}
 	\label{eqn:ODE_nonhomogeneous_linear_system_solution}
 \end{subequations}
@@ -459,9 +459,9 @@ $$ \beta_n = a_n\exp[-\gamma k_n^2(D^2 - d^2)]\sin(\phi_n) $$
 
 $$ z(t) \cong \sum_{n=1}^{N} \left[A_n\cos\left(\frac{2\pi nt}{T}\right) + B_n\sin\left(\frac{2\pi nt}{T}\right)\right] $$
 
-$$ A_n \cong \frac{\alpha_n\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right) - \beta_n b\left(\frac{2\pi n}{T}\right)}{\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right)^2 + b^2\left(\frac{2\pi n}{T}\right)^2} $$
+$$ A_n \cong \frac{k_D\alpha_n\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right) - k_D\beta_n b\left(\frac{2\pi n}{T}\right)}{\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right)^2 + b^2\left(\frac{2\pi n}{T}\right)^2} $$
 
-$$ B_n \cong \frac{\beta_n\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right) + \alpha_n b\left(\frac{2\pi n}{T}\right)}{\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right)^2 + b^2\left(\frac{2\pi n}{T}\right)^2} $$
+$$ B_n \cong \frac{k_D\beta_n\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right) + k_D\alpha_n b\left(\frac{2\pi n}{T}\right)}{\left(k + k_D - m\left(\frac{2\pi n}{T}\right)^2\right)^2 + b^2\left(\frac{2\pi n}{T}\right)^2} $$
 
 $$ \textrm{E}\left\{P\right\} \cong \frac{b}{2}\sum_{n=1}^{N}\left(A_n^2 + B_n^2\right)\left(\frac{2\pi n}{T}\right)^2 $$
 

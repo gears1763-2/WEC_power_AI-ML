@@ -53,16 +53,15 @@ if __name__ == "__main__":
     
     try:
         #   wave_utils 1: generate a test S(f) plot
-        significant_wave_height_m = 3
-        wave_peak_period_s = 10
-        wave_peak_frequency_Hz = 1 / wave_peak_period_s
+        significant_wave_height_m = random.uniform(1, 3)
+        wave_peak_period_s = random.uniform(8, 12)
         
-        n_components = random.randint(500, 1000)
+        fundamental_period_s = 900
         
-        frequency_array_Hz = np.linspace(
-            0.5 * wave_peak_frequency_Hz,
-            4 * wave_peak_frequency_Hz,
-            n_components
+        n_components = 4 * math.ceil(fundamental_period_s / wave_peak_period_s)
+        
+        frequency_array_Hz = np.array(
+            [n / fundamental_period_s for n in range(1, n_components + 1)]
         )
         
         S_array_m2Hz = np.zeros(len(frequency_array_Hz))
@@ -80,7 +79,10 @@ if __name__ == "__main__":
             frequency_array_Hz,
             S_array_m2Hz,
             zorder=2,
-            label="continuous"
+            label=r"continuous ($H_s = {}$ m, $T_p = {}$ s)".format(
+                round(significant_wave_height_m, 2),
+                round(wave_peak_period_s, 2)
+            )
         )
         plt.xlim(frequency_array_Hz[0], frequency_array_Hz[-1])
         plt.xlabel(r"$f$ [Hz]")
@@ -157,7 +159,7 @@ if __name__ == "__main__":
             color="C1",
             alpha=0.5,
             zorder=3,
-            label="discrete (binned)"
+            label=r"discrete (binned, $N = {}$)".format(n_components)
         )
         
         
@@ -174,7 +176,73 @@ if __name__ == "__main__":
         )
         
         assert(abs(float_mass_kg - 1738871.53376195) <= 1e-4)
-    
+        
+        
+        
+        #   wave_energy_converter 2: test buoyancy stiffness function
+        buoyancy_stiffness_Nm = wec.getBuoyancyStiffness(
+            float_inner_diameter_m,
+            float_outer_diameter_m
+        )
+        
+        assert(buoyancy_stiffness_Nm >= 0)
+        
+        
+        #   wave_energy_converter 3: generate a test alpha beta array
+        component_wave_number_array_m = wu.getWaveNumberArray(
+            frequency_array_Hz,
+            sea_depth_m
+        )
+        
+        gamma = 1 / 4
+        
+        alpha_beta_array_m = wec.getAlphaBetaArray(
+            component_amplitude_array_m,
+            component_wave_number_array_m,
+            random_phase_array,
+            float_inner_diameter_m,
+            float_outer_diameter_m,
+            gamma
+        )
+        
+        alpha_beta_array_m = np.array(alpha_beta_array_m)
+        
+        assert(alpha_beta_array_m.shape[0] == n_components)
+        assert(alpha_beta_array_m.shape[1] == 2)
+        
+        
+        
+        #   wave_energy_converter 4: generate a test A B array
+        power_takeoff_stiffness_Nm = 100
+        power_takeoff_damping_Nsm = 1e5
+        
+        A_B_array_m = wec.getABArray(
+            alpha_beta_array_m,
+            float_mass_kg,
+            power_takeoff_stiffness_Nm,
+            power_takeoff_damping_Nsm,
+            buoyancy_stiffness_Nm,
+            fundamental_period_s
+        )
+        
+        A_B_array_m = np.array(A_B_array_m)
+        
+        assert(A_B_array_m.shape[0] == n_components)
+        assert(A_B_array_m.shape[1] == 2)
+        
+        
+        
+        #   wave_energy_converter 5: compute expected WEC power
+        expected_WEC_power_kW = wec.getExpectedWECPower(
+            A_B_array_m,
+            power_takeoff_damping_Nsm,
+            fundamental_period_s
+        )
+        
+        assert(expected_WEC_power_kW >= 1)
+        assert(expected_WEC_power_kW <= 10)
+        
+        print("Expected WEC power =", round(expected_WEC_power_kW, 2), "kW")
     
     
     except:
