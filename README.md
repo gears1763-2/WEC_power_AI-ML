@@ -18,13 +18,21 @@ In the directory for this project, you should find this README, a LICENSE file, 
 following sub-directories:
 
     animations/     to hold some WEC animations
-    LaTeX/          to hold the main report (see `LaTeX/main.pdf`) along with the sources used in building it
+    
+    LaTeX/          to hold the main report (see `LaTeX/main.pdf`)
+        bib/        to hold the source `.bib` file (bibliography) used in building the main report
         images/     to hold the image assets used in building the main report
-    Maple/          to hold supporting Maple worksheets (along with .pdf renders)
+        tex/        to hold the source `.tex` files (other than main.tex) used in building the main report
+        
+    Maple/          to hold supporting Maple worksheets
+        mw/         to hold the supporting Maple worksheets in native `.mw` format
+        pdf/        to hold the supporting Maple worksheets in `.pdf` format
+        
     ProteusDS/      to hold an example Proteus DS simulation (used in generating the data table)
+    
     Python/         to hold supporting Python scripts and C extensions
         data/       to hold the data table, `numpy` binaries, etc.
-        pyx/        to hold supporting `cython` files, etc.
+        pyx/        to hold supporting Cython files, etc.
 
 --------
 
