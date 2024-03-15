@@ -1,0 +1,169 @@
+\documentclass[12pt, letterpaper]{report}
+
+%%%% ==== PACKAGES (ALPHABETICAL) ==== %%%%
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+    \theoremstyle{definition}
+    \newtheorem{assumption}{Assumption}
+    \newtheorem{corollary}{Corollary}
+    \newtheorem{definition}{Definition}
+    \newtheorem{theorem}{Theorem}
+    \newtheorem{proposition}{Proposition}
+%\usepackage{caption}
+\usepackage{cite}
+\usepackage{enumitem}
+%\usepackage{fancyvrb}
+\usepackage{float}
+\usepackage[margin = 1in]{geometry}
+\usepackage{graphicx}
+	\graphicspath{ {images} }
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage[utf8]{inputenc}
+\usepackage{lineno}
+%\usepackage{lscape}
+%\usepackage{minted}
+\usepackage[all]{nowidow}
+%\usepackage{pythonhighlight}
+%\usepackage{subcaption}
+\usepackage{titlesec}
+\usepackage{verbatim}
+\usepackage[dvipsnames]{xcolor}
+
+
+%%%% ==== SETTINGS AND RENEWS ==== %%%%
+\frenchspacing
+
+\renewcommand{\bibname}{References}
+
+\renewcommand{\chaptername}{}
+\titleformat{\chapter}[hang] 
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{1em}{} 
+
+\usepackage[pages=all]{background}
+	\backgroundsetup{
+        contents={DRAFT},
+        angle=45,
+        scale=12,
+        color=red,
+        opacity=0.08
+	}
+
+
+\begin{document}
+
+%%%% ==== TITLE PAGE ==== %%%%
+
+\begin{titlepage}
+	\vspace*{\stretch{0.5}}
+	\begin{center}
+		\LARGE \textbf{BIDA407 - Machine Learning Fundamentals} \\
+		\vspace{8mm}
+        \LARGE \textbf{Final Project} \\
+        \vspace{8mm}
+        \Large \textbf{Modelling the Performance of a\\Heave-Constrained Point Absorber} \\
+		\vfill
+		\normalsize\textit{prepared by} \\
+		\vspace{10mm}
+		\large Anthony Truelove \footnotesize MASc, P.Eng. \\
+        \vspace{4mm}
+        \normalsize PRIMED - Research Engineer \\
+        \vspace{30mm}
+        \normalsize\textit{prepared for} \\
+        \vspace{10mm}
+        \large Dr. Hossen Teimoorinia \\
+        \vspace{4mm}
+        \normalsize AI Specialist - Herzberg Astronomy and Astrophysics Research Centre \\
+	\end{center}
+	\vfill
+	\begin{center}
+		\today \\
+		\vspace{3mm}
+		Drafted using \LaTeX
+	\end{center}	   
+\end{titlepage}
+
+
+%%%% ==== ABSTRACT ==== %%%%
+
+\pagenumbering{roman}
+\include{abstract.tex}
+
+
+%%%% ==== CONTENTS ==== %%%%
+
+\newpage
+\addcontentsline{toc}{chapter}{Contents}
+\tableofcontents
+
+\newpage
+\addcontentsline{toc}{chapter}{List of Tables}
+\listoftables
+
+\newpage
+\addcontentsline{toc}{chapter}{List of Figures}
+\listoffigures
+
+
+%%%% ==== MAIN ==== %%%%
+
+\newpage
+\pagenumbering{arabic}
+\linenumbers
+
+\include{motivation_and_intent.tex}
+\include{reduced_problem.tex}
+\include{data_generation.tex}
+\include{data_mining.tex}
+\include{train_test.tex}
+
+%%%% ==== REFERENCES ==== %%%%
+
+\newpage
+\bibliography{refs.bib}{}
+\bibliographystyle{IEEEtran} 
+%\bibliographystyle{apalike}
+%\addcontentsline{toc}{chapter}{References}
+
+\end{document}
+
+
+%%%% ==== TEMPLATES ==== %%%%
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{spec_rad_legacy.png}
+    \caption{$\rho(\Phi)$ for varying $\frac{\Delta t}{T_n}$ (in this case, $A=\Phi$ and $T_p=T_n$)}
+    \label{fig:spec_rad_legacy}
+\end{figure}
+
+
+\begin{table}[H]
+    \centering
+    \caption{Table of $P_{\underline{H}_s}(H_s)$ vs $H_s$}
+    \begin{tabular}{|c|c|}
+        \hline
+        $P_{\underline{H}_s}(H_s)$ & $H_s$ \\\hline\hline
+        $P_1$ & $H_{s1}$ \\\hline
+        $P_2$ & $H_{s2}$ \\\hline
+        $\vdots$ & $\vdots$ \\\hline
+        $A_n$ & $H_{n}$ \\\hline 
+    \end{tabular}
+    \label{tab:H_vs_P}
+\end{table}
+
+
+\begin{center}
+\fbox{
+\parbox{0.95\textwidth}{
+\begin{assumption}{ \underline{Power Matters}:}
+    With respect to $\frac{d\textrm{SOH}}{dt}$, the charge/discharge power of the battery matters. Therefore, if $P(t)\in[-P_\textrm{cap},P_\textrm{cap}]$ is charge/discharge power at time $t$, and $P_\textrm{cap}>0$ is charge/discharge power capacity (constant), then the dimensionless term
+    $$ \frac{P(t)}{P_\textrm{cap}} $$
+    
+    is an input of $f$.
+    \label{asm:power}
+\end{assumption}
+}}
+\end{center}

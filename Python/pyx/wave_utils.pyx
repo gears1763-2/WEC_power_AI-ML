@@ -399,5 +399,80 @@ cpdef double[:] getComponentAmplitudeArray(
     return component_amplitude_array_m
 
 
+cpdef double getCharacteristicWaveNumber(
+    double[:] frequency_array_Hz,
+    double[:] component_wave_number_array_m,
+    double significant_wave_height_m,
+    double wave_peak_period_s,
+    double sea_depth_m,
+    double gravity_ms2 = 9.81
+):
+    """
+    Function which takes in an array of frequencies [Hz] and wave numbers [1/m] and
+    given sea state parameters significant wave height [m] and wave peak period [s], and
+    then generates the characteristic (i.e., variance density weighted average) wave
+    number [1/m].
+    
+    Parameters
+    ----------
+    
+    double[:] frequency_array_Hz
+        An array of component frequencies [Hz].
+    
+    double[:] component_wave_number_array_m
+        An array of component wave numbers [1/m].
+    
+    double significant_wave_height_m
+        The significant wave height [m] of the sea.
+    
+    double wave_peak_period_s
+        The wave peak period [s] of the sea.
+    
+    double sea_depth_m
+        The sea depth [m].
+    
+    double gravity_ms2
+        Acceleration due to gravity [m/s2]. Defaults to 9.81.
+    
+    Returns
+    -------
+    
+    double
+        The characteristic (i.e, variance density weighted average) of the component
+        wave numbers [1/m].
+    """
+    
+    cdef:
+        int i = 0
+        int N = len(frequency_array_Hz)
+        double[:] frequency_bounds_array_Hz = getFrequencyBoundsArray(frequency_array_Hz)
+        double lower_frequency_Hz = 0
+        double upper_frequency_Hz = 0
+        double S_m2Hz = 0
+        double wave_number_m = 0
+        double numerator_sum = 0
+        double denominator_sum = 0
+    
+    while i < N:
+        lower_frequency_Hz = frequency_bounds_array_Hz[i]
+        upper_frequency_Hz = frequency_bounds_array_Hz[i + 1]
+        
+        S_m2Hz = getVariancePreservingPiersonMoskowitzS(
+            lower_frequency_Hz,
+            upper_frequency_Hz,
+            significant_wave_height_m,
+            wave_peak_period_s
+        )
+        
+        wave_number_m = component_wave_number_array_m[i]
+        
+        numerator_sum += wave_number_m * S_m2Hz
+        denominator_sum += S_m2Hz
+        
+        i += 1
+    
+    return numerator_sum / denominator_sum
+
+
 if __name__ == "__main__":
     pass

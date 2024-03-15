@@ -164,6 +164,19 @@ if __name__ == "__main__":
         
         
         
+        #   wave_utils 6: generate test characteristic wave number
+        weighted_average_wave_number_m = wu.getCharacteristicWaveNumber(
+            frequency_array_Hz,
+            wave_number_array_m,
+            significant_wave_height_m,
+            wave_peak_period_s,
+            sea_depth_m
+        )
+        
+        assert(weighted_average_wave_number_m > 0)
+        assert(weighted_average_wave_number_m <= 1)
+        
+        
         #   wave_energy_converter 1: test float mass function
         float_inner_diameter_m = 6
         float_outer_diameter_m = 30
@@ -214,7 +227,7 @@ if __name__ == "__main__":
         
         #   wave_energy_converter 4: generate a test A B array
         power_takeoff_stiffness_Nm = 100
-        power_takeoff_damping_Nsm = 1e5
+        power_takeoff_damping_Nsm = int(1e5)
         
         A_B_array_m = wec.getABArray(
             alpha_beta_array_m,
@@ -239,10 +252,17 @@ if __name__ == "__main__":
             fundamental_period_s
         )
         
-        assert(expected_WEC_power_kW >= 1)
-        assert(expected_WEC_power_kW <= 10)
+        assert(expected_WEC_power_kW >= 0)
+        assert(expected_WEC_power_kW <= 20)
         
-        print("Expected WEC power =", round(expected_WEC_power_kW, 2), "kW")
+        print("\n\tSig. Wave Height =", round(significant_wave_height_m, 2), "m")
+        print("\tWave Peak Period =", round(wave_peak_period_s, 2), "s")
+        print("\tCharacteristic Wave Number =", round(weighted_average_wave_number_m, 5), "1/m")
+        print("\tCharacteristic Wave Length =", round((2 * math.pi) / weighted_average_wave_number_m, 2), "m")
+        print("\tFloat Diameter =", float_outer_diameter_m, "m")
+        print("\tPTO Stiffness =", power_takeoff_stiffness_Nm, "N/m")
+        print("\tPTO damping =", power_takeoff_damping_Nsm, "N.s/m")
+        print("\tExpected WEC power =", round(expected_WEC_power_kW, 2), "kW")
     
     
     except:

@@ -24,7 +24,7 @@ following sub-directories:
     ProteusDS/      to hold an example Proteus DS simulation (used in generating the data table)
     Python/         to hold supporting Python scripts and C extensions
         data/       to hold the data table
-        pyx/        to hold support Cython files, etc.
+        pyx/        to hold supporting Cython files, etc.
 
 --------
 
