@@ -40,11 +40,15 @@
 
 
 import math
+
 import matplotlib.pyplot as plt
+
 import numpy as np
+
 import pandas as pd
 
 import wave_utils as wu
+
 import wave_energy_converter as wec
 
 
