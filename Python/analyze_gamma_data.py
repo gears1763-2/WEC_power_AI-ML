@@ -38,6 +38,7 @@
     A script for analyzing gamma data.
 """
 
+import math
 
 import matplotlib.pyplot as plt
 
@@ -50,8 +51,8 @@ if __name__ == "__main__":
     dimensionless_feature_array = np.load("data/dimensionless_feature_array.npy")
     target_regression = np.load("data/target_gamma_regression.npy")
     
-    dimension = input_regression.shape[1]
     size = input_regression.shape[0]
+    dimension = input_regression.shape[1]
     
     
     #   build classification array (sentinel vs non-sentinel)
@@ -124,6 +125,11 @@ if __name__ == "__main__":
     )
     
     
+    #   log10 scale the PTO damping feature (to "linearized" distribution)
+    for i in range(0, size_after):
+        input_regression[i, dimension - 1] = math.log10(input_regression[i, dimension - 1])
+    
+    
     #   print some gamma statistics
     print()
     print("gamma statistics:")
@@ -163,7 +169,7 @@ if __name__ == "__main__":
         "Wave Peak Period [s]",
         "Float Diameter [m]",
         "Power Takeoff Stiffness [N/m]",
-        "Power Takeoff Damping [N.s/m]"
+        "$log_{10}($Power Takeoff Damping [N.s/m]$)$"
     ]
     
     target_name_list = ["gamma [ ]"]
@@ -178,8 +184,6 @@ if __name__ == "__main__":
         )
         plt.xlim(np.min(input_regression[:, i]), np.max(input_regression[:, i]))
         plt.xlabel(feature_name_list[i])
-        if i == dimension - 1:
-            plt.xscale("log")
         plt.ylabel("Count [ ]")
         plt.savefig(
             "../LaTeX/images/mining/histogram_feature_{}_no_sentinel.png".format(i),

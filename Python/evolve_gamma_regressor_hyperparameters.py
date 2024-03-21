@@ -38,6 +38,7 @@
     A script for evolving hyperparameters for a gamma regressor (MLPRegressor).
 """
 
+import math
 
 import matplotlib.pyplot as plt
 
@@ -303,8 +304,8 @@ if __name__ == "__main__":
     input_regression = np.load("data/input_gamma_regression.npy")
     target_regression = np.load("data/target_gamma_regression.npy")
     
-    dimension = input_regression.shape[1]
     size = input_regression.shape[0]
+    dimension = input_regression.shape[1]
     
     
     #   filter out sentinels
@@ -321,6 +322,11 @@ if __name__ == "__main__":
         "% of the data was retained"
     )
     print()
+    
+    
+    #   log10 scale the PTO damping feature (to get "linearized" distribution)
+    for i in range(0, size_after):
+        input_regression[i, dimension - 1] = math.log10(input_regression[i, dimension - 1])
     
     
     #   seek optimal hyperparameters (by way of differential evolution)
