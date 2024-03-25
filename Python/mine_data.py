@@ -189,10 +189,7 @@ if __name__ == "__main__":
     
     
     #   log10 scale the power takeoff stiffness, plot histogram
-    log10_damping = np.zeros(size)
-    
-    for i in range(0, size):
-        log10_damping[i] = math.log10(feature_array[i, dimension - 1])
+    log10_damping = np.log10(feature_array[:, dimension - 1])
     
     plt.figure(figsize=(8, 6))
     plt.grid(color="C7", alpha=0.5, zorder=1)
@@ -376,6 +373,43 @@ if __name__ == "__main__":
     
     
     
+    #   make efficiency histogram
+    efficiency_array = WEC_dataframe[
+        "Hydrodynamic Efficiency (deep water) [ ]"
+    ].astype(float).values
+    
+    print("mean efficiency =", round(np.mean(efficiency_array), 3))
+    print(
+        "efficiency percentiles [0.01 0.05 0.25 0.50 0.75 0.95 0.99] =",
+        np.round(np.percentile(efficiency_array, [1, 5, 25, 50, 75, 95, 99]), decimals=3)
+    )
+    print()
+    
+    idx_sort_efficiency = np.argsort(efficiency_array)
+    
+    plt.figure(figsize=(8, 6))
+    plt.grid(color="C7", alpha=0.5, zorder=1)
+    plt.hist(
+        efficiency_array,
+        bins="scott",
+        alpha=0.8,
+        zorder=2
+    )
+    plt.xlim(np.min(efficiency_array), np.max(efficiency_array))
+    plt.xlabel("Hydrodynamic Efficiency (deep water) [ ]")
+    #plt.yscale("log")
+    plt.ylabel("Count [ ]")
+    plt.savefig(
+        "../LaTeX/images/mining/efficiency_histogram.png",
+        format="png",
+        dpi=128,
+        bbox_inches="tight"
+    )
+    
+    plt.close()
+    
+    
+    
     #   make some more scatter plots (dimensionless terms)
     print("\nMaking some dimensionless scatter plots ... ", end="", flush=True)
     
@@ -411,9 +445,84 @@ if __name__ == "__main__":
                 bbox_inches="tight"
             )
             
+            plt.figure(figsize=(8, 6))
+            plt.grid(color="C7", alpha=0.5, zorder=1)
+            plt.scatter(
+                dimensionless_feature_array[:, i],
+                dimensionless_feature_array[:, j],
+                s=16,
+                c=np.log10(target_array),
+                cmap="jet",
+                zorder=3
+            )
+            plt.colorbar(
+                label=r"$\log_{10}($" + target_column_list[0] + r"$)$"
+            )
+            plt.xlabel(dimensionless_feature_column_list[i])
+            plt.ylabel(dimensionless_feature_column_list[j])
+            plt.savefig(
+                "../LaTeX/images/mining/dimensionless_data_mining_{}_{}_log10.png".format(i, j),
+                format="png",
+                dpi=128,
+                bbox_inches="tight"
+            )
+            
+            plt.figure(figsize=(8, 6))
+            plt.grid(color="C7", alpha=0.5, zorder=1)
+            plt.scatter(
+                dimensionless_feature_array[idx_sort_efficiency, i],
+                dimensionless_feature_array[idx_sort_efficiency, j],
+                s=16,
+                c=efficiency_array[idx_sort_efficiency],
+                cmap="jet",
+                zorder=3
+            )
+            plt.colorbar(
+                label="Hydrodynamic Efficiency (deep water) [ ]"
+            )
+            plt.xlabel(dimensionless_feature_column_list[i])
+            plt.ylabel(dimensionless_feature_column_list[j])
+            plt.savefig(
+                "../LaTeX/images/mining/dimensionless_data_mining_{}_{}_efficiency.png".format(i, j),
+                format="png",
+                dpi=128,
+                bbox_inches="tight"
+            )
+            
             plt.close()
     
     print("DONE (saved to ../LaTeX/images/mining/)")
+    
+    
+    
+    #   plot correlation between power and efficiency
+    plt.figure(figsize=(8, 6))
+    plt.grid(color="C7", alpha=0.5, zorder=1)
+    plt.scatter(
+        target_array,
+        efficiency_array,
+        s=6,
+        zorder=2
+    )
+    plt.plot(
+        [0, 1.05 * np.max(target_array)],
+        [0, 1],
+        color="black",
+        linestyle="--",
+        zorder=3
+    )
+    plt.xlim(0, 1.05 * np.max(target_array))
+    plt.xlabel(target_column_list[0])
+    plt.ylim(0, 1)
+    plt.ylabel("Hydrodynamic Efficiency (deep water) [ ]")
+    plt.savefig(
+        "../LaTeX/images/mining/power_efficiency_correlation.png",
+        format="png",
+        dpi=128,
+        bbox_inches="tight"
+    )
+    
+    plt.close()
     
     
     

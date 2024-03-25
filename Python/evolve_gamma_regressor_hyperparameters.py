@@ -375,11 +375,11 @@ def hyperparamObjective(
     
     
     #   normalize using min-max scaler (calibrated using training data)
-    standard_scaler = skl_pp.MinMaxScaler()
-    standard_scaler.fit(input_train)
+    min_max_scaler = skl_pp.MinMaxScaler()
+    min_max_scaler.fit(input_train)
     
-    input_train_norm = standard_scaler.transform(input_train)
-    input_test_norm = standard_scaler.transform(input_test)
+    input_train_norm = min_max_scaler.transform(input_train)
+    input_test_norm = min_max_scaler.transform(input_test)
     
     
     #   build sequential regressor (tensorflow.keras.Sequential)
