@@ -35,7 +35,7 @@
 
 
 """
-    A script for training a gamma regressor (MLPRegressor).
+    A script for training a gamma regressor (tensorflow.keras.Sequential).
 """
 
 
@@ -47,8 +47,107 @@ import numpy as np
 
 import sklearn.metrics as skl_me
 import sklearn.model_selection as skl_ms
-import sklearn.neural_network as skl_nn
 import sklearn.preprocessing as skl_pp
+
+import tensorflow.keras as tfk
+
+
+
+#### ============================================================================== ####
+
+def buildSequentialRegressor(
+    input_dimension : int,
+    output_dimension : int,
+    hidden_layers : list[int],
+    activation : str,
+    dropout_rate : float = 0.1
+) -> tfk.Sequential:
+    """
+    A helper function which initializes and compiles a tensorflow.keras.Sequential model
+    for use in regression.
+    
+    Parameters
+    ----------
+    
+    input_dimension : int
+        The input dimension, or number of neurons in the input layer.
+    
+    output_dimension : int
+        The output (target) dimension, or number of neurons in the output layer.
+    
+    hidden_layers : list[int]
+        A list of integers, where the len of the list is the number of hidden layers, 
+        and each element of the list is the number of neurons in each layer.
+    
+    activation : str
+        The activation function to use in each neuron.
+    
+    dropout_rate : float = 0.1
+        The dropout rate to use for dropout layers. Defaults to 0.1. Not presently used.
+    
+    Returns
+    -------
+    
+    tfk.Sequential
+        A compiled sequential regressor, namely tensorflow.keras.Sequential.
+    """
+    
+    #   init sequential regressor, add input layer
+    sequential_regressor = tfk.Sequential()
+    
+    sequential_regressor.add(
+        tfk.layers.InputLayer(
+            shape=(input_dimension,),
+            name="input_layer"
+        )
+    )
+    
+    
+    #   build out hidden layers
+    layer_count = 1
+    
+    for n_neurons in hidden_layers:
+        if n_neurons >= 1:
+            sequential_regressor.add(
+                tfk.layers.Dense(
+                    n_neurons,
+                    activation=activation,
+                    name="hidden_layer_{}".format(layer_count)
+                )
+            )
+            """
+            sequential_regressor.add(
+                tfk.layers.Dropout(
+                    dropout_rate,
+                    name="dropout_layer_{}".format(layer_count)
+                )
+            )
+            """
+            layer_count += 1
+    
+    
+    #   add output layer
+    sequential_regressor.add(
+        tfk.layers.Dense(
+            output_dimension,
+            activation=activation,
+            name="output_layer"
+        )
+    )
+    
+    
+    #   compile sequential regressor
+    adam_learning_rate = 0.001
+    
+    sequential_regressor.compile(
+        optimizer=tfk.optimizers.Adam(adam_learning_rate),
+        loss="mean_squared_error"
+    )
+    
+    return sequential_regressor
+
+#### ============================================================================== ####
+
 
 
 if __name__ == "__main__":
@@ -61,19 +160,20 @@ if __name__ == "__main__":
     
     
     
-    #   drop Pi_4 (since exactly correlated with peak period)
+    #   drop Pi_4 (since exactly correlated with peak period T_p)
     input_regression = np.delete(input_regression, dimension - 1, axis=1)
+    dimension -= 1
     
     
     
     #   load optimal hyperparameters
-    ANN_hyperparams = np.load("data/gamma_regressor_hyperparams.npy")
+    sequential_regressor_hyperparams = np.load("data/gamma_regressor_hyperparams.npy")
     
-    hidden_layers = [int(x) for x in ANN_hyperparams[0:4]]
-    activation = ANN_hyperparams[4]
+    hidden_layers = [int(x) for x in sequential_regressor_hyperparams[0:6]]
+    activation = sequential_regressor_hyperparams[6]
     
     print(
-        "\napparent optimal hyperparameters (sklearn.neural_network.MLPRegressor):\n\n",
+        "\napparent optimal hyperparameters (tensorflow.keras.Sequential):\n\n",
         "\thidden layers: {}\n".format(hidden_layers),
         "\tactivation: " + activation
     )
@@ -81,7 +181,6 @@ if __name__ == "__main__":
     
     
     #   split into training and test data (random 80/20 split)
-    #   using specific RNG seed here, so as to get "apples-to-apples" metrics
     (
         input_regression_train,
         input_regression_test,
@@ -90,44 +189,116 @@ if __name__ == "__main__":
     ) = skl_ms.train_test_split(
         input_regression,
         target_regression.flatten(),
-        test_size=0.20,
-        random_state=12345
+        test_size=0.20
+    )
+    
+    
+    
+    #   save training and test data for later application
+    np.savez(
+        "data/gamma_regressor_train_test_split.npz",
+        input_regression_train=input_regression_train,
+        input_regression_test=input_regression_test,
+        target_regression_train=target_regression_train,
+        target_regression_test=target_regression_test
     )
     
     
     
     #   normalize using min-max scaler (calibrated using training data)
-    standard_scaler = skl_pp.MinMaxScaler()
-    standard_scaler.fit(input_regression_train)
+    min_max_scaler = skl_pp.MinMaxScaler()
+    min_max_scaler.fit(input_regression_train)
     
-    input_regression_train_norm = standard_scaler.transform(input_regression_train)
-    input_regression_test_norm = standard_scaler.transform(input_regression_test)
+    input_regression_train_norm = min_max_scaler.transform(input_regression_train)
+    input_regression_test_norm = min_max_scaler.transform(input_regression_test)
     
     
     
-    #   init and train ANN regressor (using apparent optimal hyperparameters)
-    ANN = skl_nn.MLPRegressor(
-        hidden_layer_sizes=hidden_layers,
-        activation=activation
+    #   init and train sequential regressor (using apparent optimal hyperparameters)
+    gamma_regressor = buildSequentialRegressor(
+        dimension,
+        1,
+        hidden_layers,
+        activation
     )
     
-    ANN.fit(input_regression_train_norm, target_regression_train)
+    gamma_regressor.summary()
+    
+    fit_history = gamma_regressor.fit(
+        input_regression_train_norm,
+        target_regression_train,
+        epochs=512,
+        callbacks=[
+            tfk.callbacks.EarlyStopping(
+                patience=32,
+                start_from_epoch=32
+            )
+        ],
+        validation_data=(input_regression_test_norm, target_regression_test)
+    )
+    
+    
+    
+    #   plot training results
+    plt.figure(figsize=(8, 6))
+    plt.grid(color="C7", alpha=0.5, zorder=1)
+    plt.plot(
+        fit_history.history["loss"],
+        color="C0",
+        zorder=2,
+        label="training set"
+    )
+    plt.plot(
+        fit_history.history["val_loss"],
+        color="C3",
+        linestyle="--",
+        zorder=3,
+        label="test set"
+    )
+    plt.xlabel("Training Epoch [ ]")
+    plt.ylabel("Loss Metric (mean squared error) [ ]")
+    plt.savefig(
+        "../LaTeX/images/regressor/gamma_regressor_training_history.png",
+        format="png",
+        dpi=128,
+        bbox_inches="tight"
+    )
+    
+    
+    
+    #   save trained model for later application
+    gamma_regressor.save("data/gamma_regressor.keras")
     
     
     
     #   predict, plot, and print/save/show peformance metrics
-    predict_regression_train = ANN.predict(input_regression_train_norm)
-    predict_regression_test = ANN.predict(input_regression_test_norm)
+    predict_regression_train = gamma_regressor.predict(
+        input_regression_train_norm
+    ).flatten()
+    
+    predict_regression_test = gamma_regressor.predict(
+        input_regression_test_norm
+    ).flatten()
     
     mu_test = np.mean(target_regression_test - predict_regression_test)
     sigma_test = np.std(target_regression_test - predict_regression_test)
     
     print(
-        "\nperformance metrics (sklearn.neural_network.MLPRegressor):\n\n",
+        "\nperformance metrics (tensorflow.keras.Sequential):\n\n",
         "\tmu_test: {}\n".format(round(mu_test, 6)),
         "\tsigma_test: {}\n".format(round(sigma_test, 6))
     )
     
+    
+    plt_min = 0.90 * min(
+        [np.min(target_regression_train), np.min(predict_regression_train)] +
+        [np.min(target_regression_test), np.min(predict_regression_test)]
+    )
+    
+    plt_max = 1.10 * max(
+        [np.max(target_regression_train), np.max(predict_regression_train)] +
+        [np.max(target_regression_test), np.max(predict_regression_test)]
+    )
     
     
     plt.figure(figsize=(8, 6))
@@ -152,15 +323,15 @@ if __name__ == "__main__":
         label="test set"
     )
     plt.plot(
-        [np.min(target_regression_test), np.max(target_regression_test)],
-        [np.min(target_regression_test), np.max(target_regression_test)],
+        [plt_min, plt_max],
+        [plt_min, plt_max],
         linestyle="--",
         color="black",
         zorder=4
     )
-    plt.xlim(np.min(target_regression_test), np.max(target_regression_test))
+    plt.xlim(plt_min, plt_max)
     plt.xlabel("Target [ ]")
-    plt.ylim(np.min(target_regression_test), np.max(target_regression_test))
+    plt.ylim(plt_min, plt_max)
     plt.ylabel("Prediction [ ]")
     plt.legend()
     plt.savefig(
@@ -224,13 +395,13 @@ if __name__ == "__main__":
         label="test set"
     )
     plt.plot(
-        [np.min(target_regression_test), np.max(target_regression_test)],
+        [plt_min, plt_max],
         [0, 0],
         linestyle="--",
         color="black",
         zorder=4
     )
-    plt.xlim(np.min(target_regression_test), np.max(target_regression_test))
+    plt.xlim(plt_min, plt_max)
     plt.xlabel("Target [ ]")
     plt.ylabel("Target - Prediction [ ]")
     plt.legend()

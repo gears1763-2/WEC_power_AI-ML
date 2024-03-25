@@ -35,8 +35,10 @@
 
 
 """
-    A script for evolving hyperparameters for a gamma regressor (MLPRegressor).
+    A script for evolving hyperparameters for a gamma regressor
+    (tensorflow.keras.Sequential).
 """
+
 
 import math
 
@@ -51,8 +53,9 @@ import scipy.optimize as spo
 
 import sklearn.metrics as skl_me
 import sklearn.model_selection as skl_ms
-import sklearn.neural_network as skl_nn
 import sklearn.preprocessing as skl_pp
+
+import tensorflow.keras as tfk
 
 import time
 
@@ -61,14 +64,14 @@ import time
 #### ============================================================================== ####
 
 start_time = time.time()
-time_limit_s = 48 * 3600    # 48 hours
+time_limit_s = 24 * 3600    # 24 hours
 
 generation = 0
 evolution_log = []
 
 activation_dict = {
-    0: "identity",
-    1: "logistic",
+    0: "linear",
+    1: "sigmoid",
     2: "tanh",
     3: "relu"
 }
@@ -82,7 +85,8 @@ activation_dict = {
 def evolutionCallback(intermediate_result : spo.OptimizeResult) -> None:
     """
     A callback function used to track the change in best objective value from one 
-    generation to the next (for plotting later). Also enforces evolution timeout.
+    generation to the next (for plotting later). Also enforces evolution early stopping,
+    based on no change in evolution log and/or timeout.
     
     Parameters
     ----------
@@ -106,20 +110,22 @@ def evolutionCallback(intermediate_result : spo.OptimizeResult) -> None:
     generation += 1
     evolution_log.append(intermediate_result.fun)
     
+    global activation_dict
+    
+    hidden_layers = [round(x) for x in intermediate_result.x[0:6]]
+    activation = activation_dict[round(intermediate_result.x[6])]
+    
     print()
     print(
-        "ANN generation:",
+        "sequential_regressor generation:",
         generation,
         "\n\thyperparams: ",
-        intermediate_result.x,
+        hidden_layers,
+        "   ",
+        activation,
         "\n\tobjective: ",
         round(intermediate_result.fun, 6)
     )
-    
-    global activation_dict
-    
-    hidden_layers = [round(x) for x in intermediate_result.x[0:4] if round(x) > 0]
-    activation = activation_dict[round(intermediate_result.x[4])]
 
     np.save(
         "data/gamma_regressor_hyperparams.npy",
@@ -127,29 +133,8 @@ def evolutionCallback(intermediate_result : spo.OptimizeResult) -> None:
     )
     
     
-    #   check apparent convergence condition
-    if len(evolution_log) > 10:
-        if np.std(evolution_log[-10 :]) == 0:
-            quit_flag = True
-    
-    
-    #   check timeout condition
-    global start_time
-    global time_limit_s
-    
-    end_time = time.time()
-    
-    time_elapsed = end_time - start_time
-    print()
-    print("time elapsed: ", time_elapsed, "s")
-    print()
-    
-    if time_elapsed > time_limit_s:
-        quit_flag = True
-    
-    
-    #   handle early stopping
-    if quit_flag:
+    #   plot intermediate results
+    if len(evolution_log) >= 2:
         plt.figure(figsize=(8, 6))
         plt.grid(color="C7")
         plt.plot(
@@ -166,11 +151,134 @@ def evolutionCallback(intermediate_result : spo.OptimizeResult) -> None:
             dpi=128,
             bbox_inches="tight"
         )
-        
-        print("**** STOPPING EARLY ****")
+        plt.close()
+    
+    
+    #   check apparent convergence condition
+    if len(evolution_log) > 10:
+        if np.std(evolution_log[-10 :]) == 0:
+            print("**** STOPPING EARLY : CONVERGENCE ****")
+            quit_flag = True
+    
+    
+    #   check timeout condition
+    global start_time
+    global time_limit_s
+    
+    end_time = time.time()
+    
+    time_elapsed = end_time - start_time
+    print()
+    print("time elapsed: ", time_elapsed, "s")
+    print()
+    
+    if time_elapsed > time_limit_s:
+        print("**** STOPPING EARLY : TIMEOUT ****")
+        quit_flag = True
+    
+    
+    #   handle early stopping
+    if quit_flag:
         quit()
     
     return
+
+#### ============================================================================== ####
+
+
+
+#### ============================================================================== ####
+
+def buildSequentialRegressor(
+    input_dimension : int,
+    output_dimension : int,
+    hidden_layers : list[int],
+    activation : str,
+    dropout_rate : float = 0.1
+) -> tfk.Sequential:
+    """
+    A helper function which initializes and compiles a tensorflow.keras.Sequential model
+    for use in regression.
+    
+    Parameters
+    ----------
+    
+    input_dimension : int
+        The input dimension, or number of neurons in the input layer.
+    
+    output_dimension : int
+        The output (target) dimension, or number of neurons in the output layer.
+    
+    hidden_layers : list[int]
+        A list of integers, where the len of the list is the number of hidden layers, 
+        and each element of the list is the number of neurons in each layer.
+    
+    activation : str
+        The activation function to use in each neuron.
+    
+    dropout_rate : float = 0.1
+        The dropout rate to use for dropout layers. Defaults to 0.1. Not presently used.
+    
+    Returns
+    -------
+    
+    tfk.Sequential
+        A compiled sequential regressor, namely tensorflow.keras.Sequential.
+    """
+    
+    #   init sequential regressor, add input layer
+    sequential_regressor = tfk.Sequential()
+    
+    sequential_regressor.add(
+        tfk.layers.InputLayer(
+            shape=(input_dimension,),
+            name="input_layer"
+        )
+    )
+    
+    
+    #   build out hidden layers
+    layer_count = 1
+    
+    for n_neurons in hidden_layers:
+        if n_neurons >= 1:
+            sequential_regressor.add(
+                tfk.layers.Dense(
+                    n_neurons,
+                    activation=activation,
+                    name="hidden_layer_{}".format(layer_count)
+                )
+            )
+            """
+            sequential_regressor.add(
+                tfk.layers.Dropout(
+                    dropout_rate,
+                    name="dropout_layer_{}".format(layer_count)
+                )
+            )
+            """
+            layer_count += 1
+    
+    
+    #   add output layer
+    sequential_regressor.add(
+        tfk.layers.Dense(
+            output_dimension,
+            activation=activation,
+            name="output_layer"
+        )
+    )
+    
+    
+    #   compile sequential regressor
+    adam_learning_rate = 0.001
+    
+    sequential_regressor.compile(
+        optimizer=tfk.optimizers.Adam(adam_learning_rate),
+        loss="mean_squared_error"
+    )
+    
+    return sequential_regressor
 
 #### ============================================================================== ####
 
@@ -186,9 +294,10 @@ def hyperparamObjective(
     """
     Function which takes in a candidate hyperparameter array along with input and target
     data (not normalized), randomly splits the data into training and test sets,
-    normalizes the data, trains an ANN regressor, computes various training and test set
-    performance metrics, and then computes and returns a multiobjective which seeks to
-    balance overfitting against training and test set performance.
+    normalizes the data, trains an sequential_regressor regressor, computes various
+    training and test set performance metrics, and then computes and returns a
+    multiobjective which seeks to balance overfitting against training and test set
+    performance.
     
     Parameters
     ----------
@@ -213,11 +322,23 @@ def hyperparamObjective(
         set performance.
     """
     
+    #   get input and output dimensions
+    try:
+        input_dimension = input_data.shape[1]
+    except:
+        input_dimension = 1
+    
+    try:
+        output_dimension = target_data.shape[1]
+    except:
+        output_dimension = 1
+    
+    
     #   unpack hyperparameter array
     global activation_dict
     
-    hidden_layers = [round(x) for x in hyperparam_array[0:4] if round(x) > 0]
-    activation = activation_dict[round(hyperparam_array[4])]
+    hidden_layers = [round(x) for x in hyperparam_array[0:6]]
+    activation = activation_dict[round(hyperparam_array[6])]
     
     if len(hidden_layers) == 0:
         hidden_layers = [1]
@@ -261,22 +382,41 @@ def hyperparamObjective(
     input_test_norm = standard_scaler.transform(input_test)
     
     
-    #   init ANN (multi-layer perceptron) regressor
-    ANN = skl_nn.MLPRegressor(
-        hidden_layer_sizes=hidden_layers,
-        activation=activation,
-        max_iter=1000,
-        early_stopping=True
+    #   build sequential regressor (tensorflow.keras.Sequential)
+    sequential_regressor = buildSequentialRegressor(
+        input_dimension,
+        output_dimension,
+        hidden_layers,
+        activation
     )
     
     
-    #   train ANN regressor
-    ANN.fit(input_train_norm, target_train)
+    #   train sequential regressor
+    sequential_regressor.fit(
+        input_train_norm,
+        target_train,
+        epochs=512,
+        verbose=0,
+        callbacks=[
+            tfk.callbacks.EarlyStopping(
+                patience=16,
+                start_from_epoch=32
+            )
+        ],
+        validation_data=(input_test_norm, target_test)
+    )
     
     
     #   compute regression performance metrics
-    predict_train = ANN.predict(input_train_norm)
-    predict_test = ANN.predict(input_test_norm)
+    predict_train = sequential_regressor.predict(
+        input_train_norm,
+        verbose=0
+    ).flatten()
+    
+    predict_test = sequential_regressor.predict(
+        input_test_norm,
+        verbose=0
+    ).flatten()
     
     mu_train = np.mean(target_train - predict_train)
     sigma_train = np.std(target_train - predict_train)
@@ -325,8 +465,9 @@ if __name__ == "__main__":
     
     
     
-    #   drop Pi_4 (since exactly correlated with peak period)
+    #   drop Pi_4 (since exactly correlated with peak period T_p)
     input_regression = np.delete(input_regression, dimension - 1, axis=1)
+    dimension -= 1
     
     
     
@@ -335,10 +476,11 @@ if __name__ == "__main__":
     #   Ref: <https://en.wikipedia.org/wiki/Differential_evolution>
     #   Ref: <https://xloptimizer.com/features/differential-evolution/de-best-1-bin>
     #   Ref: <https://machinelearningmastery.com/differential-evolution-from-scratch-in-python/>
+    print()
     print("CPU count:", os.cpu_count())
     print()
     
-    print("ANN generation:", generation)
+    print("sequential_regressor generation:", generation)
     
     opt_res = spo.differential_evolution(
         hyperparamObjective,
@@ -347,7 +489,18 @@ if __name__ == "__main__":
             (0, 256),
             (0, 256),
             (0, 256),
+            (0, 256),
+            (0, 256),
             (0, 3)
+        ],
+        integrality=[
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True
         ],
         args=(
             input_regression,
@@ -371,8 +524,8 @@ if __name__ == "__main__":
     
     
     #   unpack, save, and print apparent optimal hyperparameter array
-    hidden_layers = [round(x) for x in opt_res.x[0:4] if round(x) > 0]
-    activation = activation_dict[round(opt_res.x[4])]
+    hidden_layers = [round(x) for x in opt_res.x[0:6]]
+    activation = activation_dict[round(opt_res.x[6])]
 
     np.save(
         "data/gamma_regressor_hyperparams.npy",
@@ -380,27 +533,7 @@ if __name__ == "__main__":
     )
     
     print(
-        "\napparent optimal hyperparameters (sklearn.neural_network.MLPRegressor):\n\n",
+        "\napparent optimal hyperparameters (tensorflow.keras.Sequential):\n\n",
         "\thidden layers: {}\n".format(hidden_layers),
         "\tactivation: " + activation
-    )
-    
-    
-    
-    #   plot and save evolution curve
-    plt.figure(figsize=(8, 6))
-    plt.grid(color="C7")
-    plt.plot(
-        [i for i in range(0, len(evolution_log))],
-        evolution_log,
-        zorder=2
-    )
-    plt.xlim(0, len(evolution_log) - 1)
-    plt.xlabel("Generation [ ]")
-    plt.ylabel("Objective Value [ ]")
-    plt.savefig(
-        "../LaTeX/images/regressor/gamma_regressor_evolution.png",
-        format="png",
-        dpi=128,
-        bbox_inches="tight"
     )
