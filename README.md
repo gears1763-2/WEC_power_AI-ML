@@ -36,7 +36,7 @@ report `main.pdf`, and the following sub-directories:
 ## Key Features
 
   * Reduced dynamics for a heave constrained point absorber are solved exactly (with respect to expected power output).
-  * Time domain modelling software is used to generate data set of more complex dynamics.
+  * Time domain modelling software is used to generate a data set of more complex dynamics.
   * A perturbation machine (dense neural network) is trained to correct from the reduced to the complex dynamics.
   * Example applications to WEC design optimization and WEC performance mapping are presented.
 
